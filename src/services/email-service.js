@@ -1,5 +1,6 @@
+const { Mailer } = require('../config');
 const {TicketRepository} = require('../repositories');
-const {Mailer} = require('../config');
+
 
 const ticketRepository = new TicketRepository();
 

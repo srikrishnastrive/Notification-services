@@ -2,6 +2,7 @@ const express = require('express');
 const { ServerConfig } = require('./config');
 const apiRoutes = require('./routes');
 const amqplib = require('amqplib');
+const { EmailService } = require('./services');
 
 async function connectQueue(){
     try {
@@ -9,7 +10,10 @@ async function connectQueue(){
         const channel = await connection.createChannel();
         await channel.assertQueue('noti-queue');
         channel.consume('noti-queue',(data)=>{
+            const message = JSON.parse(data.content.toString());
+            EmailService.sendEmail(ServerConfig.EMAIL_ID, message.recepientEmail, message.subject, message.text);
             console.log(`${Buffer.from(data.content)}`);
+
             channel.ack(data);
         });
     } catch (error) {
@@ -17,8 +21,9 @@ async function connectQueue(){
     }
 }
 
-const mailSender = require('./config/email-config');
-const serverConfig = require('./config/server-config');
+
+
+
 const app = express();
 
 app.use(express.json());
